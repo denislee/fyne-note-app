@@ -38,3 +38,9 @@ func TestUIAdd(t *testing.T) {
 
 	assert.Equal(t, 3, len(gui.list.Children))
 }
+
+func TestUIRemove(t *testing.T) {
+	gui := testGUI()
+	gui.removeCurrentNote()
+	assert.Equal(t, 1, len(gui.list.Children))
+}

@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/widget"
 )
 
+
 type ui struct {
 	current *note
 	notes   *noteList
@@ -43,6 +44,15 @@ func (u *ui) refreshList() {
 
 }
 
+func (u *ui) removeCurrentNote() {
+	u.notes.remove(u.current)
+	if len(u.notes.list) > 0 {
+		u.setNote(u.notes.list[0])
+	}
+	u.refreshList()
+	u.notes.saveNotes()
+}
+
 func (u *ui) loadUI() fyne.CanvasObject {
 	u.content = widget.NewMultiLineEntry()
 
@@ -59,13 +69,16 @@ func (u *ui) loadUI() fyne.CanvasObject {
 		}
 		u.current.content = content
 		u.refreshList()
+		u.notes.saveNotes()
 	}
 
 	bar := widget.NewToolbar(
 		widget.NewToolbarAction(theme.ContentAddIcon(), func() {
 			u.addNote()
 		}),
-		widget.NewToolbarAction(theme.ContentRemoveIcon(), func() {}),
+		widget.NewToolbarAction(theme.ContentRemoveIcon(), func() {
+			u.removeCurrentNote()
+		}),
 	)
 
 	side := fyne.NewContainerWithLayout(layout.NewBorderLayout(bar, nil, nil, nil),
@@ -77,15 +90,11 @@ func (u *ui) loadUI() fyne.CanvasObject {
 }
 
 func main() {
-	a := app.New()
+	a := app.NewWithID("com.github.denislee.fyne-notes-app")
 	w := a.NewWindow("notes")
 
-	list := &noteList{
-		list: []*note{
-			&note{content: "note1\ncontent1"},
-			&note{content: "note2\ncontent2"},
-		},
-	}
+	list := &noteList{prefs: a.Preferences()}
+	list.loadNotes()
 
 	notesUI := &ui{notes: list}
 	w.SetContent(notesUI.loadUI())

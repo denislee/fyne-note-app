@@ -1,7 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"fyne.io/fyne"
 	"strings"
+)
+
+const (
+	noteCountKey = "noteCount"
+	noteKeyFormat = "note%d"
 )
 
 type note struct {
@@ -16,7 +23,31 @@ func (n *note) title() string {
 }
 
 type noteList struct {
-	list []*note
+	list  []*note
+	prefs fyne.Preferences
+}
+
+func (l *noteList) loadNotes() {
+	total := l.prefs.Int(noteCountKey)
+	if total == 0 {
+		return // TODO write a tutorial note? :)
+	}
+
+	for i := 0; i < total; i++ {
+		key := fmt.Sprintf(noteKeyFormat, i)
+		content := l.prefs.String(key)
+
+		l.list = append(l.list, &note{content: content})
+	}
+}
+
+func (l *noteList) saveNotes() {
+	for i, n := range l.list {
+		key := fmt.Sprintf(noteKeyFormat, i)
+		l.prefs.SetString(key, n.content)
+	}
+
+	l.prefs.SetInt(noteCountKey, len(l.list))
 }
 
 func (l *noteList) add() *note {

@@ -26,10 +26,14 @@ func TestNoteListAdd(t *testing.T) {
 }
 
 func TestNoteListRemove(t *testing.T) {
-	toRemove := &note{ content: "remove me" }
-	notes := &noteList{list: []*note{toRemove}}
+	first := &note{content: "remove me"}
+	second := &note{content: "remove me"}
+	notes := &noteList{list: []*note{first, second}}
 
+	assert.Equal(t, 2, len(notes.list))
+	notes.remove(first)
 	assert.Equal(t, 1, len(notes.list))
-	notes.remove(toRemove)
+	notes.remove(second)
 	assert.Equal(t, 0, len(notes.list))
+
 }
